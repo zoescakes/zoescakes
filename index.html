@@ -96,6 +96,7 @@ let cake = document.getElementById("cake").value;
 let size = document.getElementById("size").value;
 let price = document.getElementById("price").value;
 let status = document.getElementById("status").value;
+let date = document.getElementById("date").value;
 
 if(name=="" || cake==""){
 alert("Complete order first!");
@@ -107,9 +108,8 @@ name:name,
 cake:cake,
 size:size,
 price:price,
-status:status
-}).then(()=>{
-alert("Saved Online!");
+status:status,
+date:date
 });
 }
 
@@ -120,8 +120,12 @@ let html = "";
 snapshot.forEach((doc)=>{
 let o = doc.data();
 html += "<div class='order'>"
-+ o.name + " | " + o.cake + " | ₱" + o.price + " | " + o.status
-+ "</div>";
++ "👤 " + o.name + "<br>"
++ "🎂 " + o.cake + "<br>"
++ "💸 ₱" + o.price + "<br>"
++ "📅 " + o.date + "<br>"
++ "📌 " + o.status +
+"</div>";
 });
 document.getElementById("orders").innerHTML = html;
 });
