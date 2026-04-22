@@ -53,7 +53,7 @@ input,select{width:90%;padding:8px;margin:5px}
 <input id="cake" placeholder="Cake">
 <input id="size" placeholder="Size">
 <input id="price" placeholder="Price">
-<input id="date" placeholder="Date" readonly>
+<input type="date" id="date">
 
 <select id="status">
 <option>Pending</option>
@@ -134,6 +134,12 @@ document.getElementById("orders").innerHTML = html;
 loadOrders();
 
 </script>
+function setToday(){
+let today = new Date().toISOString().split('T')[0];
+document.getElementById("date").value = today;
+}
+
+setToday();
 
 </body>
 </html>
