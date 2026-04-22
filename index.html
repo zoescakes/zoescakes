@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Zoe's Cake Orders</title>
+</head>
+
+<body>
+
+<h1>Zoe's Cake Orders 🎂</h1>
+
+<input id="name" placeholder="Customer Name"><br><br>
+<input id="cake" placeholder="Cake Type"><br><br>
+<input id="size" placeholder="Size"><br><br>
+<input id="price" placeholder="Price"><br><br>
+<input id="date" type="date"><br><br>
+
+<select id="status">
+  <option>Pending</option>
+  <option>Done</option>
+</select><br><br>
+
+<button onclick="submitOrder()">Submit Order</button>
+
+<h2>Orders</h2>
+<div id="ordersList"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCGJ_LtyRkZ3YzfxVIsfu2uQKQvhDOHSLg",
+  authDomain: "zoes-cake-order-tracker.firebaseapp.com",
+  projectId: "zoes-cake-order-tracker",
+  storageBucket: "zoes-cake-order-tracker.firebasestorage.app",
+  messagingSenderId: "123074129862",
+  appId: "1:123074129862:web:58f5be0ed235691ec88cc7",
+  measurementId: "G-HSW1XSD8DD"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.submitOrder = async function () {
+  const name = document.getElementById("name").value;
+  const cake = document.getElementById("cake").value;
+  const size = document.getElementById("size").value;
+  const price = document.getElementById("price").value;
+  const date = document.getElementById("date").value;
+  const status = document.getElementById("status").value;
+
+  if (!name || !cake) {
+    alert("Fill all fields!");
+    return;
+  }
+
+  await addDoc(collection(db, "orders"), {
+    name,
+    cake,
+    size,
+    price,
+    date,
+    status
+  });
+
+  alert("Order Saved!");
+
+  document.getElementById("name").value = "";
+  document.getElementById("cake").value = "";
+  document.getElementById("size").value = "";
+  document.getElementById("price").value = "";
+  document.getElementById("date").value = "";
+
+  loadOrders();
+};
+
+async function loadOrders() {
+  const querySnapshot = await getDocs(collection(db, "orders"));
+  const list = document.getElementById("ordersList");
+  list.innerHTML = "";
+
+  querySnapshot.forEach((doc) => {
+    const data = doc.data();
+    list.innerHTML += `
+      <p>${data.name} - ${data.cake} - ₱${data.price} (${data.status})</p>
+    `;
+  });
+}
+
+loadOrders();
+</script>
+
+</body>
+</html>
