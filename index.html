@@ -14,9 +14,9 @@ h1{text-align:center;color:#ff4d94}
 .left{width:60%;padding:10px}
 .right{width:40%;padding:10px}
 .card{background:#fff0f5;padding:10px;margin:10px;border-radius:10px}
-button{padding:8px;background:#ff4d94;color:white;border:none;border-radius:5px;margin:3px}
-input,select{width:90%;padding:8px;margin:5px}
-.order{background:#ffe6f0;margin:5px;padding:8px;border-radius:5px}
+button{padding:10px;background:#ff4d94;color:white;border:none;border-radius:8px;margin:5px}
+input,select{width:90%;padding:10px;margin:5px;border-radius:8px}
+.order{background:#ffe6f0;margin:5px;padding:10px;border-radius:8px}
 </style>
 </head>
 
@@ -54,7 +54,7 @@ input,select{width:90%;padding:8px;margin:5px}
 <input id="size" placeholder="Size">
 <input id="price" placeholder="Price">
 
-<!-- ✅ CALENDAR DATE -->
+<!-- ✅ UPDATED CALENDAR -->
 <input type="date" id="date">
 
 <select id="status">
@@ -74,7 +74,7 @@ input,select{width:90%;padding:8px;margin:5px}
 
 <script>
 
-// FIREBASE
+// 🔥 FIREBASE (IMO NA CONFIG)
 const firebaseConfig = {
 apiKey: "AIzaSyCGJ_LtyRkZ3YzfxVIsfu2uQKQvhDOHSLg",
 authDomain: "zoes-cake-order-tracker.firebaseapp.com",
@@ -84,7 +84,7 @@ projectId: "zoes-cake-order-tracker"
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// AUTO TODAY DATE
+// ✅ AUTO TODAY DATE
 function setToday(){
 let today = new Date().toISOString().split('T')[0];
 document.getElementById("date").value = today;
@@ -129,6 +129,7 @@ db.collection("orders").onSnapshot((snapshot)=>{
 let html = "";
 snapshot.forEach((doc)=>{
 let o = doc.data();
+
 html += "<div class='order'>"
 + "👤 "+o.name+"<br>"
 + "🎂 "+o.cake+"<br>"
@@ -136,6 +137,7 @@ html += "<div class='order'>"
 + "📅 "+o.date+"<br>"
 + "📌 "+o.status
 + "</div>";
+
 });
 document.getElementById("orders").innerHTML = html;
 });
