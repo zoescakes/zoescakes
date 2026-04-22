@@ -1,93 +1,312 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Zoe's Cake Orders</title>
+<title>Zoe's Cakes</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins&display=swap" rel="stylesheet">
+
+<style>
+body {
+font-family:'Poppins';
+background: linear-gradient(to right,#ffd6e7,#ffeaf4);
+margin:0;
+}
+
+/* LOGO */
+.logo {
+text-align:center;
+font-family:'Pacifico';
+font-size:40px;
+color:#ff4d94;
+margin:10px;
+animation:fade 1s ease-in;
+}
+
+@keyframes fade {
+from {opacity:0; transform:translateY(-20px);}
+to {opacity:1;}
+}
+
+.main { display:flex; height:95vh; }
+
+.left { width:60%; padding:10px; overflow:auto; }
+.right { width:40%; padding:10px; display:flex; flex-direction:column; gap:10px; }
+
+.container {
+background:white;
+padding:15px;
+border-radius:20px;
+box-shadow:0 4px 15px rgba(0,0,0,0.1);
+animation:fade 1s;
+}
+
+.cakes {
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
+}
+
+/* CARD */
+.card {
+background:#fff0f5;
+padding:10px;
+border-radius:15px;
+text-align:center;
+transition:0.3s;
+}
+
+.card:hover {
+transform:scale(1.05);
+}
+
+/* IMAGE */
+.card img {
+width:100%;
+border-radius:10px;
+}
+
+/* PRICE BUTTON */
+.price {
+background:#ff4d94;
+color:white;
+margin:5px;
+padding:6px;
+border-radius:8px;
+cursor:pointer;
+transition:0.3s;
+}
+
+.price:hover {
+background:#ff1a75;
+}
+
+/* INPUT */
+input, select {
+width:95%;
+padding:10px;
+margin:5px;
+border-radius:10px;
+border:1px solid #ddd;
+}
+
+/* BUTTON */
+button {
+padding:10px;
+margin:5px;
+background:#ff4d94;
+color:white;
+border:none;
+border-radius:10px;
+cursor:pointer;
+transition:0.3s;
+}
+
+button:hover {
+background:#ff1a75;
+}
+
+/* ORDER LIST */
+.order {
+background:#ffe6f0;
+padding:8px;
+margin:5px;
+border-radius:10px;
+}
+</style>
 </head>
 
 <body>
 
-<h1>Zoe's Cake Orders 🎂</h1>
+<div class="logo">🎂 Zoe's Cakes</div>
 
-<input id="name" placeholder="Customer Name"><br><br>
-<input id="cake" placeholder="Cake Type"><br><br>
-<input id="size" placeholder="Size"><br><br>
-<input id="price" placeholder="Price"><br><br>
-<input id="date" type="date"><br><br>
+<div class="main">
+
+<!-- MENU -->
+<div class="left container">
+<h3>Choose Cake 💖</h3>
+
+<div class="cakes">
+
+<div class="card">
+<img src="drip.jpg">
+<h4>Drip Cake</h4>
+<div class="price" onclick="selectOrder('Drip Cake','Small',380)">Small - ₱380</div>
+<div class="price" onclick="selectOrder('Drip Cake','Medium',580)">Medium - ₱580</div>
+<div class="price" onclick="selectOrder('Drip Cake','Large',700)">Large - ₱700</div>
+</div>
+
+<div class="card">
+<img src="mini.jpg">
+<h4>Mini Tiered</h4>
+<div class="price" onclick="selectOrder('Mini Tiered','Standard',2350)">₱2350</div>
+</div>
+
+<div class="card">
+<img src="tiered.jpg">
+<h4>Tiered Cake</h4>
+<div class="price" onclick="selectOrder('Tiered Cake','Standard',2800)">₱2800</div>
+</div>
+
+<div class="card">
+<img src="cupcake.jpg">
+<h4>With Cupcakes</h4>
+<div class="price" onclick="selectOrder('With Cupcakes','Standard',1350)">₱1350</div>
+</div>
+
+<div class="card">
+<img src="wedding.jpg">
+<h4>Wedding Cake</h4>
+<div class="price" onclick="selectOrder('Wedding Cake','Starting',3500)">₱3500+</div>
+</div>
+
+</div>
+</div>
+
+<!-- ORDER SIDE -->
+<div class="right">
+
+<div class="container">
+<h3>Order 💖</h3>
+
+<input id="name" placeholder="Customer Name">
+<input id="cake" placeholder="Cake">
+<input id="size" placeholder="Size">
+<input id="price" placeholder="Price">
 
 <select id="status">
-  <option>Pending</option>
-  <option>Done</option>
-</select><br><br>
+<option>Pending</option>
+<option>Paid</option>
+<option>Claimed</option>
+</select>
 
-<button onclick="submitOrder()">Submit Order</button>
+<h4>GCash: 09764183834</h4>
 
-<h2>Orders</h2>
-<div id="ordersList"></div>
+<button onclick="saveOrder()">Save Order</button>
+<button onclick="printCurrent()">Print Receipt</button>
+</div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+<div class="container">
+<h3>Sales 💸</h3>
+<h4>Total: ₱<span id="total">0</span></h4>
+<div id="orders"></div>
+</div>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCGJ_LtyRkZ3YzfxVIsfu2uQKQvhDOHSLg",
-  authDomain: "zoes-cake-order-tracker.firebaseapp.com",
-  projectId: "zoes-cake-order-tracker",
-  storageBucket: "zoes-cake-order-tracker.firebasestorage.app",
-  messagingSenderId: "123074129862",
-  appId: "1:123074129862:web:58f5be0ed235691ec88cc7",
-  measurementId: "G-HSW1XSD8DD"
-};
+</div>
+</div>
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+<script>
 
-window.submitOrder = async function () {
-  const name = document.getElementById("name").value;
-  const cake = document.getElementById("cake").value;
-  const size = document.getElementById("size").value;
-  const price = document.getElementById("price").value;
-  const date = document.getElementById("date").value;
-  const status = document.getElementById("status").value;
-
-  if (!name || !cake) {
-    alert("Fill all fields!");
-    return;
-  }
-
-  await addDoc(collection(db, "orders"), {
-    name,
-    cake,
-    size,
-    price,
-    date,
-    status
-  });
-
-  alert("Order Saved!");
-
-  document.getElementById("name").value = "";
-  document.getElementById("cake").value = "";
-  document.getElementById("size").value = "";
-  document.getElementById("price").value = "";
-  document.getElementById("date").value = "";
-
-  loadOrders();
-};
-
-async function loadOrders() {
-  const querySnapshot = await getDocs(collection(db, "orders"));
-  const list = document.getElementById("ordersList");
-  list.innerHTML = "";
-
-  querySnapshot.forEach((doc) => {
-    const data = doc.data();
-    list.innerHTML += `
-      <p>${data.name} - ${data.cake} - ₱${data.price} (${data.status})</p>
-    `;
-  });
+function selectOrder(cake,size,price){
+cakeEl.value=cake;
+sizeEl.value=size;
+priceEl.value=price;
 }
 
-loadOrders();
+let cakeEl=document.getElementById("cake");
+let sizeEl=document.getElementById("size");
+let priceEl=document.getElementById("price");
+
+function saveOrder(){
+let name=document.getElementById("name").value;
+let cake=cakeEl.value;
+let price=priceEl.value;
+let status=document.getElementById("status").value;
+
+if(name==""||cake==""){
+alert("Complete order!");
+return;
+}
+
+let data=JSON.parse(localStorage.getItem("orders"))||[];
+data.push({name,cake,price,status});
+localStorage.setItem("orders",JSON.stringify(data));
+
+showOrders();
+alert("Saved!");
+}
+
+function showOrders(){
+let data=JSON.parse(localStorage.getItem("orders"))||[];
+let html="";
+let total=0;
+
+data.forEach((o,i)=>{
+if(o.status=="Paid"){ total+=Number(o.price); }
+
+html+=`
+<div class="order">
+${o.name} | ${o.cake} | ₱${o.price} | ${o.status}
+<br>
+<button onclick="markPaid(${i})">Paid</button>
+<button onclick="markClaim(${i})">Claimed</button>
+<button onclick="printOne(${i})">🧾</button>
+<button onclick="deleteOrder(${i})">❌</button>
+</div>`;
+});
+
+orders.innerHTML=html;
+totalEl.innerText=total;
+}
+
+function markPaid(i){
+let d=JSON.parse(localStorage.getItem("orders"));
+d[i].status="Paid";
+localStorage.setItem("orders",JSON.stringify(d));
+showOrders();
+}
+
+function markClaim(i){
+let d=JSON.parse(localStorage.getItem("orders"));
+d[i].status="Claimed";
+localStorage.setItem("orders",JSON.stringify(d));
+showOrders();
+}
+
+function deleteOrder(i){
+let d=JSON.parse(localStorage.getItem("orders"));
+d.splice(i,1);
+localStorage.setItem("orders",JSON.stringify(d));
+showOrders();
+}
+
+function printCurrent(){
+let name=document.getElementById("name").value;
+let cake=cakeEl.value;
+let price=priceEl.value;
+
+let w=window.open("");
+w.document.write(`
+<body style="text-align:center;background:#ffe6f0;font-family:Poppins;">
+<h2 style="color:#ff4d94;">🎂 Zoe's Cakes</h2>
+<p>${name}</p>
+<p>${cake}</p>
+<p>₱${price}</p>
+<p>💖 Thank you!</p>
+</body>
+`);
+w.print();
+}
+
+function printOne(i){
+let d=JSON.parse(localStorage.getItem("orders"));
+let o=d[i];
+
+let w=window.open("");
+w.document.write(`
+<body style="text-align:center;background:#ffe6f0;font-family:Poppins;">
+<h2 style="color:#ff4d94;">🎂 Zoe's Cakes</h2>
+<p>${o.name}</p>
+<p>${o.cake}</p>
+<p>₱${o.price}</p>
+<p>${o.status}</p>
+<p>💖 Thank you!</p>
+</body>
+`);
+w.print();
+}
+
+showOrders();
+
 </script>
 
 </body>
