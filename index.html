@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Zoe's Cakes</title>
+<title>Zoe's Cakes ULTRA</title>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -10,11 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Pacifico&display=swap" rel="stylesheet">
 
 <style>
-body{
-font-family:'Poppins';
-background:#fff5f8;
-margin:0;
-}
+body{font-family:'Poppins';background:#fff5f8;margin:0}
 
 header{
 background:#ff4d94;
@@ -25,58 +21,46 @@ font-family:'Pacifico';
 font-size:30px;
 }
 
-.container{
-display:flex;
-}
+.container{display:flex}
 
-/* LEFT SHOP */
+/* SHOP */
 .shop{
 width:65%;
-padding:15px;
 display:grid;
 grid-template-columns:repeat(3,1fr);
 gap:15px;
+padding:15px;
 }
 
-/* CARD */
 .product{
 background:white;
 border-radius:15px;
-box-shadow:0 4px 10px rgba(0,0,0,0.1);
 padding:10px;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
 text-align:center;
-transition:0.3s;
-}
-
-.product:hover{
-transform:scale(1.05);
 }
 
 .product img{
 width:100%;
 height:120px;
-object-fit:cover;
 border-radius:10px;
-}
-
-.product h4{
-margin:8px 0;
+object-fit:cover;
 }
 
 .product button{
+margin-top:5px;
+padding:8px;
 background:#ff4d94;
 color:white;
 border:none;
-padding:8px;
 border-radius:8px;
-cursor:pointer;
 }
 
-/* RIGHT PANEL */
+/* PANEL */
 .panel{
 width:35%;
-padding:15px;
 background:#ffe6f0;
+padding:15px;
 }
 
 input,select{
@@ -94,15 +78,24 @@ border:none;
 padding:10px;
 border-radius:10px;
 cursor:pointer;
-margin-top:5px;
 }
 
 .order{
 background:white;
-margin:5px;
 padding:10px;
+margin:5px;
 border-radius:10px;
 font-size:14px;
+}
+
+.total{
+background:#ff4d94;
+color:white;
+padding:10px;
+border-radius:10px;
+margin:10px 0;
+text-align:center;
+font-weight:bold;
 }
 </style>
 </head>
@@ -145,7 +138,6 @@ font-size:14px;
 <input id="cake" placeholder="Cake">
 <input id="size" placeholder="Size">
 <input id="price" type="number" placeholder="Enter Price">
-
 <input type="date" id="date">
 
 <select id="status">
@@ -155,6 +147,8 @@ font-size:14px;
 </select>
 
 <button onclick="saveOrder()">Save</button>
+
+<div class="total" id="total">Total Sales: ₱0</div>
 
 <h3>Orders</h3>
 <div id="orders"></div>
@@ -183,10 +177,10 @@ new Date().toISOString().split('T')[0];
 
 // SELECT
 function selectOrder(cake,size){
-document.getElementById("cake").value=cake;
-document.getElementById("size").value=size;
-document.getElementById("price").value="";
-document.getElementById("price").focus();
+cakeEl.value=cake;
+sizeEl.value=size;
+priceEl.value="";
+priceEl.focus();
 }
 
 // SAVE
@@ -206,22 +200,50 @@ return;
 db.collection("orders").add({name,cake,size,price,status,date});
 }
 
+// DELETE
+function deleteOrder(id){
+db.collection("orders").doc(id).delete();
+}
+
+// UPDATE STATUS
+function updateStatus(id,status){
+db.collection("orders").doc(id).update({status});
+}
+
 // LOAD
 function loadOrders(){
 db.collection("orders").onSnapshot((snap)=>{
+
 let html="";
+let total=0;
+
 snap.forEach(doc=>{
 let o=doc.data();
+
+if(o.status==="Paid") total+=o.price;
+
 html+=`
 <div class="order">
 👤 ${o.name}<br>
 🎂 ${o.cake}<br>
 💸 ₱${o.price}<br>
 📅 ${o.date}<br>
-📌 ${o.status}
-</div>`;
+
+<select onchange="updateStatus('${doc.id}',this.value)">
+<option ${o.status=="Pending"?"selected":""}>Pending</option>
+<option ${o.status=="Paid"?"selected":""}>Paid</option>
+<option ${o.status=="Claimed"?"selected":""}>Claimed</option>
+</select>
+
+<br>
+<button onclick="deleteOrder('${doc.id}')">Delete</button>
+</div>
+`;
 });
+
 orders.innerHTML=html;
+document.getElementById("total").innerText="Total Sales: ₱"+total;
+
 });
 }
 
@@ -234,6 +256,7 @@ let statusEl=status;
 let dateEl=date;
 let orders=document.getElementById("orders");
 
+// RUN
 setToday();
 loadOrders();
 
