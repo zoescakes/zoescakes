@@ -2,59 +2,94 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Zoe's Cakes PRO</title>
+<title>Zoe's Cakes PRO+</title>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
+<!-- Chart -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
-body{font-family:Arial;background:#ffd6e7;margin:0}
+body{font-family:Arial;background:#ffe4f0;margin:0}
 h1{text-align:center;color:#ff4d94}
+
 .main{display:flex}
 .left{width:60%;padding:10px}
 .right{width:40%;padding:10px}
-.card{background:#fff0f5;padding:10px;margin:10px;border-radius:10px}
-button{padding:10px;background:#ff4d94;color:white;border:none;border-radius:8px;margin:5px}
-input,select{width:90%;padding:10px;margin:5px;border-radius:8px}
-.order{background:#ffe6f0;margin:5px;padding:10px;border-radius:8px}
+
+.card{
+background:#fff0f5;
+padding:15px;
+margin:10px;
+border-radius:15px
+}
+
+button{
+padding:8px;
+background:#ff4d94;
+color:white;
+border:none;
+border-radius:8px;
+margin:5px;
+cursor:pointer
+}
+
+input,select{
+width:95%;
+padding:10px;
+margin:5px;
+border-radius:10px
+}
+
+.order{
+background:#fff;
+margin:5px;
+padding:10px;
+border-radius:10px;
+}
+
+.icon{font-size:20px}
 </style>
 </head>
 
 <body>
 
-<h1>🎂 Zoe's Cakes PRO</h1>
+<h1>🎂 Zoe's Cakes PRO+</h1>
 
 <div class="main">
 
+<!-- LEFT MENU -->
 <div class="left">
 
 <div class="card">
-<h3>Drip Cake</h3>
-<button onclick="selectOrder('Drip Cake','Small',380)">Small ₱380</button>
-<button onclick="selectOrder('Drip Cake','Medium',580)">Medium ₱580</button>
-<button onclick="selectOrder('Drip Cake','Large',700)">Large ₱700</button>
-</div>
+<h3>🍰 Cakes</h3>
 
-<div class="card">
-<h3>Mini Tiered</h3>
-<button onclick="selectOrder('Mini Tiered','Standard',2350)">₱2350</button>
-</div>
+<button onclick="selectOrder('Drip Cake','Small')">🍫 Small</button>
+<button onclick="selectOrder('Drip Cake','Medium')">🍓 Medium</button>
+<button onclick="selectOrder('Drip Cake','Large')">🎂 Large</button>
 
-<div class="card">
-<h3>Tiered Cake</h3>
-<button onclick="selectOrder('Tiered Cake','Standard',2800)">₱2800</button>
+<button onclick="selectOrder('Mini Tiered','Standard')">🧁 Mini Tiered</button>
+<button onclick="selectOrder('Tiered Cake','Standard')">🎂 Tiered</button>
+
 </div>
 
 </div>
 
+<!-- RIGHT SIDE -->
 <div class="right">
+
+<div class="card">
+<h3>📝 Order</h3>
 
 <input id="name" placeholder="Customer Name">
 <input id="cake" placeholder="Cake">
 <input id="size" placeholder="Size">
-<input id="price" placeholder="Price">
 
-<!-- ✅ UPDATED CALENDAR -->
+<!-- editable price -->
+<input id="price" type="number" placeholder="Enter Price">
+
+<!-- calendar -->
 <input type="date" id="date">
 
 <select id="status">
@@ -65,8 +100,17 @@ input,select{width:90%;padding:10px;margin:5px;border-radius:8px}
 
 <button onclick="saveOrder()">Save Order</button>
 
-<h3>Orders</h3>
+</div>
+
+<div class="card">
+<h3>📋 Orders</h3>
 <div id="orders"></div>
+</div>
+
+<div class="card">
+<h3>📊 Daily Sales</h3>
+<canvas id="chart"></canvas>
+</div>
 
 </div>
 
@@ -74,7 +118,7 @@ input,select{width:90%;padding:10px;margin:5px;border-radius:8px}
 
 <script>
 
-// 🔥 FIREBASE (IMO NA CONFIG)
+// FIREBASE
 const firebaseConfig = {
 apiKey: "AIzaSyCGJ_LtyRkZ3YzfxVIsfu2uQKQvhDOHSLg",
 authDomain: "zoes-cake-order-tracker.firebaseapp.com",
@@ -84,66 +128,85 @@ projectId: "zoes-cake-order-tracker"
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// ✅ AUTO TODAY DATE
+// AUTO DATE
 function setToday(){
 let today = new Date().toISOString().split('T')[0];
 document.getElementById("date").value = today;
 }
 
-// SELECT ORDER
-function selectOrder(cake,size,price){
+// SELECT
+function selectOrder(cake,size){
 document.getElementById("cake").value = cake;
 document.getElementById("size").value = size;
-document.getElementById("price").value = price;
+document.getElementById("price").value = "";
+document.getElementById("price").focus();
 }
 
-// SAVE ORDER
+// SAVE
 function saveOrder(){
-let name = document.getElementById("name").value;
-let cake = document.getElementById("cake").value;
-let size = document.getElementById("size").value;
-let price = document.getElementById("price").value;
-let status = document.getElementById("status").value;
-let date = document.getElementById("date").value;
+let name=document.getElementById("name").value;
+let cake=document.getElementById("cake").value;
+let size=document.getElementById("size").value;
+let price=parseFloat(document.getElementById("price").value)||0;
+let status=document.getElementById("status").value;
+let date=document.getElementById("date").value;
 
-if(name=="" || cake==""){
-alert("Complete order first!");
+if(name==""||cake==""){
+alert("Complete order!");
 return;
 }
 
 db.collection("orders").add({
-name:name,
-cake:cake,
-size:size,
-price:price,
-status:status,
-date:date
-}).then(()=>{
-alert("Saved Online!");
+name,cake,size,price,status,date
 });
 }
 
-// LOAD ORDERS
+// LOAD + CHART
 function loadOrders(){
-db.collection("orders").onSnapshot((snapshot)=>{
-let html = "";
-snapshot.forEach((doc)=>{
-let o = doc.data();
 
-html += "<div class='order'>"
-+ "👤 "+o.name+"<br>"
-+ "🎂 "+o.cake+"<br>"
-+ "💸 ₱"+o.price+"<br>"
-+ "📅 "+o.date+"<br>"
-+ "📌 "+o.status
-+ "</div>";
+db.collection("orders").onSnapshot((snap)=>{
+
+let html="";
+let sales={};
+
+snap.forEach(doc=>{
+let o=doc.data();
+
+html+=`
+<div class="order">
+👤 ${o.name}<br>
+🎂 ${o.cake}<br>
+💸 ₱${o.price}<br>
+📅 ${o.date}<br>
+📌 ${o.status}
+</div>
+`;
+
+if(!sales[o.date]) sales[o.date]=0;
+if(o.status=="Paid") sales[o.date]+=o.price;
+});
+
+document.getElementById("orders").innerHTML=html;
+
+// CHART
+let labels=Object.keys(sales);
+let data=Object.values(sales);
+
+new Chart(document.getElementById("chart"),{
+type:'bar',
+data:{
+labels:labels,
+datasets:[{
+label:'Daily Sales',
+data:data
+}]
+}
+});
 
 });
-document.getElementById("orders").innerHTML = html;
-});
+
 }
 
-// RUN
 setToday();
 loadOrders();
 
