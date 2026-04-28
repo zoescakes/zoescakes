@@ -2,94 +2,150 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Zoe's Cakes PRO+</title>
+<title>Zoe's Cakes</title>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
-<!-- Chart -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins&family=Pacifico&display=swap" rel="stylesheet">
 
 <style>
-body{font-family:Arial;background:#ffe4f0;margin:0}
-h1{text-align:center;color:#ff4d94}
-
-.main{display:flex}
-.left{width:60%;padding:10px}
-.right{width:40%;padding:10px}
-
-.card{
-background:#fff0f5;
-padding:15px;
-margin:10px;
-border-radius:15px
+body{
+font-family:'Poppins';
+background:#fff5f8;
+margin:0;
 }
 
-button{
-padding:8px;
+header{
+background:#ff4d94;
+color:white;
+padding:15px;
+text-align:center;
+font-family:'Pacifico';
+font-size:30px;
+}
+
+.container{
+display:flex;
+}
+
+/* LEFT SHOP */
+.shop{
+width:65%;
+padding:15px;
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:15px;
+}
+
+/* CARD */
+.product{
+background:white;
+border-radius:15px;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
+padding:10px;
+text-align:center;
+transition:0.3s;
+}
+
+.product:hover{
+transform:scale(1.05);
+}
+
+.product img{
+width:100%;
+height:120px;
+object-fit:cover;
+border-radius:10px;
+}
+
+.product h4{
+margin:8px 0;
+}
+
+.product button{
 background:#ff4d94;
 color:white;
 border:none;
+padding:8px;
 border-radius:8px;
-margin:5px;
-cursor:pointer
+cursor:pointer;
+}
+
+/* RIGHT PANEL */
+.panel{
+width:35%;
+padding:15px;
+background:#ffe6f0;
 }
 
 input,select{
 width:95%;
 padding:10px;
 margin:5px;
-border-radius:10px
+border-radius:10px;
+border:1px solid #ddd;
+}
+
+button{
+background:#ff4d94;
+color:white;
+border:none;
+padding:10px;
+border-radius:10px;
+cursor:pointer;
+margin-top:5px;
 }
 
 .order{
-background:#fff;
+background:white;
 margin:5px;
 padding:10px;
 border-radius:10px;
+font-size:14px;
 }
-
-.icon{font-size:20px}
 </style>
 </head>
 
 <body>
 
-<h1>🎂 Zoe's Cakes PRO+</h1>
+<header>🎂 Zoe's Cakes</header>
 
-<div class="main">
+<div class="container">
 
-<!-- LEFT MENU -->
-<div class="left">
+<!-- SHOP -->
+<div class="shop">
 
-<div class="card">
-<h3>🍰 Cakes</h3>
+<div class="product">
+<img src="https://via.placeholder.com/150">
+<h4>Drip Cake</h4>
+<button onclick="selectOrder('Drip Cake','Small')">Select</button>
+</div>
 
-<button onclick="selectOrder('Drip Cake','Small')">🍫 Small</button>
-<button onclick="selectOrder('Drip Cake','Medium')">🍓 Medium</button>
-<button onclick="selectOrder('Drip Cake','Large')">🎂 Large</button>
+<div class="product">
+<img src="https://via.placeholder.com/150">
+<h4>Mini Tiered</h4>
+<button onclick="selectOrder('Mini Tiered','Standard')">Select</button>
+</div>
 
-<button onclick="selectOrder('Mini Tiered','Standard')">🧁 Mini Tiered</button>
-<button onclick="selectOrder('Tiered Cake','Standard')">🎂 Tiered</button>
-
+<div class="product">
+<img src="https://via.placeholder.com/150">
+<h4>Tiered Cake</h4>
+<button onclick="selectOrder('Tiered Cake','Standard')">Select</button>
 </div>
 
 </div>
 
-<!-- RIGHT SIDE -->
-<div class="right">
+<!-- PANEL -->
+<div class="panel">
 
-<div class="card">
-<h3>📝 Order</h3>
+<h3>Order</h3>
 
 <input id="name" placeholder="Customer Name">
 <input id="cake" placeholder="Cake">
 <input id="size" placeholder="Size">
-
-<!-- editable price -->
 <input id="price" type="number" placeholder="Enter Price">
 
-<!-- calendar -->
 <input type="date" id="date">
 
 <select id="status">
@@ -98,19 +154,10 @@ border-radius:10px;
 <option>Claimed</option>
 </select>
 
-<button onclick="saveOrder()">Save Order</button>
+<button onclick="saveOrder()">Save</button>
 
-</div>
-
-<div class="card">
-<h3>📋 Orders</h3>
+<h3>Orders</h3>
 <div id="orders"></div>
-</div>
-
-<div class="card">
-<h3>📊 Daily Sales</h3>
-<canvas id="chart"></canvas>
-</div>
 
 </div>
 
@@ -130,48 +177,41 @@ const db = firebase.firestore();
 
 // AUTO DATE
 function setToday(){
-let today = new Date().toISOString().split('T')[0];
-document.getElementById("date").value = today;
+document.getElementById("date").value =
+new Date().toISOString().split('T')[0];
 }
 
 // SELECT
 function selectOrder(cake,size){
-document.getElementById("cake").value = cake;
-document.getElementById("size").value = size;
-document.getElementById("price").value = "";
+document.getElementById("cake").value=cake;
+document.getElementById("size").value=size;
+document.getElementById("price").value="";
 document.getElementById("price").focus();
 }
 
 // SAVE
 function saveOrder(){
-let name=document.getElementById("name").value;
-let cake=document.getElementById("cake").value;
-let size=document.getElementById("size").value;
-let price=parseFloat(document.getElementById("price").value)||0;
-let status=document.getElementById("status").value;
-let date=document.getElementById("date").value;
+let name=nameEl.value;
+let cake=cakeEl.value;
+let size=sizeEl.value;
+let price=parseFloat(priceEl.value)||0;
+let status=statusEl.value;
+let date=dateEl.value;
 
-if(name==""||cake==""){
+if(!name||!cake){
 alert("Complete order!");
 return;
 }
 
-db.collection("orders").add({
-name,cake,size,price,status,date
-});
+db.collection("orders").add({name,cake,size,price,status,date});
 }
 
-// LOAD + CHART
+// LOAD
 function loadOrders(){
-
 db.collection("orders").onSnapshot((snap)=>{
-
 let html="";
-let sales={};
-
 snap.forEach(doc=>{
 let o=doc.data();
-
 html+=`
 <div class="order">
 👤 ${o.name}<br>
@@ -179,33 +219,20 @@ html+=`
 💸 ₱${o.price}<br>
 📅 ${o.date}<br>
 📌 ${o.status}
-</div>
-`;
-
-if(!sales[o.date]) sales[o.date]=0;
-if(o.status=="Paid") sales[o.date]+=o.price;
+</div>`;
 });
-
-document.getElementById("orders").innerHTML=html;
-
-// CHART
-let labels=Object.keys(sales);
-let data=Object.values(sales);
-
-new Chart(document.getElementById("chart"),{
-type:'bar',
-data:{
-labels:labels,
-datasets:[{
-label:'Daily Sales',
-data:data
-}]
+orders.innerHTML=html;
+});
 }
-});
 
-});
-
-}
+// SHORTCUT
+let nameEl=name;
+let cakeEl=cake;
+let sizeEl=size;
+let priceEl=price;
+let statusEl=status;
+let dateEl=date;
+let orders=document.getElementById("orders");
 
 setToday();
 loadOrders();
