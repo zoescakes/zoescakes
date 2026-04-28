@@ -34,17 +34,30 @@ padding:15px;
 
 .product{
 background:white;
-border-radius:15px;
+border-radius:20px;
 padding:10px;
-box-shadow:0 4px 10px rgba(0,0,0,0.1);
+box-shadow:0 8px 20px rgba(255,77,148,0.2);
 text-align:center;
+position:relative;
+overflow:hidden;
+transition:0.3s;
+}
+
+.product:hover{
+transform:translateY(-5px) scale(1.03);
+box-shadow:0 10px 25px rgba(255,77,148,0.3);
 }
 
 .product img{
 width:100%;
-height:120px;
-border-radius:10px;
+height:140px;
 object-fit:cover;
+border-radius:15px;
+transition:0.3s;
+}
+
+.product:hover img{
+transform:scale(1.1);
 }
 
 .product button{
@@ -110,9 +123,14 @@ font-weight:bold;
 <div class="shop">
 
 <div class="product">
-<img src="https://via.placeholder.com/150">
+
+<div class="badge">BEST SELLER</div>
+
+<img src="YOUR_IMAGE_LINK">
 <h4>Drip Cake</h4>
+
 <button onclick="selectOrder('Drip Cake','Small')">Select</button>
+
 </div>
 
 <div class="product">
@@ -122,11 +140,55 @@ font-weight:bold;
 </div>
 
 <div class="product">
-<img src="https://via.placeholder.com/150">
-<h4>Tiered Cake</h4>
-<button onclick="selectOrder('Tiered Cake','Standard')">Select</button>
+
+<div class="badge">BEST SELLER</div>
+
+<img src="https://images.unsplash.com/photo-1601979031925-424e53b6caaa">
+
+<h4>🍫 Drip Cake</h4>
+
+<button onclick="selectOrder('Drip Cake','Small')">Select</button>
+
 </div>
 
+<div class="product">
+
+<div class="badge">NEW</div>
+
+<img src="https://images.unsplash.com/photo-1559620192-032c4bc4674e">
+
+<h4>🧁 Mini Tiered</h4>
+
+<button onclick="selectOrder('Mini Tiered','Standard')">Select</button>
+
+</div>
+.product{
+background:white;
+border-radius:20px;
+padding:10px;
+box-shadow:0 8px 20px rgba(255,77,148,0.2);
+text-align:center;
+position:relative;
+overflow:hidden;
+}
+
+.product img{
+width:100%;
+height:140px;
+object-fit:cover;
+border-radius:15px;
+}
+
+.badge{
+position:absolute;
+top:10px;
+left:10px;
+background:#ff4d94;
+color:white;
+padding:3px 8px;
+border-radius:10px;
+font-size:12px;
+}
 </div>
 
 <!-- PANEL -->
